@@ -1,0 +1,16 @@
+{
+  "name": "frp-chalmers",
+  "version": "0.0.1",
+  "description": "A presentation of Functional Reactive Programming",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mollerse/frp-chalmers.git"
+  },
+  "author": "Stian Veum Møllersen",
+  "license": "MIT",
+  "dependencies": {
+    "ecstatic": "~0.4.12",
+    "socket.io": "~0.9.16"
+  }
+}

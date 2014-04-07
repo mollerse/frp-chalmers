@@ -1,63 +1,692 @@
 <!doctype html>
 <html lang="en">
 
-    <head>
-        <meta charset="utf-8">
+  <head>
+    <meta charset="utf-8">
 
-        <title>Tittel</title>
+    <title>Zen-like State Management with FRP</title>
 
-        <link rel="stylesheet" href="./css/reveal.min.css">
-        <link rel="stylesheet" href="./css/theme/night.css">
-    </head>
+    <link rel="stylesheet" href="./css/reveal.min.css">
+    <link rel="stylesheet" href="./css/theme/night.css">
+    <link rel="stylesheet" href="./css/monokai-sublime.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/vote-example.css">
 
-    <body>
 
-        <div class="reveal">
+    <script type="text/javascript" src="js/bacon.js"></script>
+    <script type="text/javascript" src="socket.io/socket.io.js"></script>
+  </head>
 
-            <div class="slides">
+  <body>
 
-                <section>
-                    <h2>Tittel</h2>
-                    <p>Sted År</p>
-                    <p>Stian Veum Møllersen / <a href="http://twitter.com/mollerse">@mollerse</a></p>
-                    <p><a href="http://open.bekk.no">open.bekk.no</a></p>
-                </section>
+    <div class="reveal">
 
-                <section>
+      <div class="slides">
 
-                </section>
+        <section>
+          <h2>Zen-like State Management with FRP</h2>
+          <p>Chalmers, April 2014</p>
+          <p>Stian Veum Møllersen / <a href="http://twitter.com/mollerse">@mollerse</a></p>
+          <p><a href="http://open.bekk.no">open.bekk.no</a></p>
+        </section>
 
-                <section>
-                    <h3>Spørsmål, tilbakemeldinger, kjeft etc</h3>
-                    <h3><a href="http://www.github.com/mollerse">@mollerse</a></h3>
-                    <h3><a href="mailto:stian.veum.mollersen@bekk.no">stian.veum.mollersen@bekk.no</a></h3>
-                </section>
+        <section>
+          <h3>Hi, my name is Stian</h3>
+          <p>I'm a frontender</p>
+          <aside class="notes">
+            Hei, jeg heter Stian. Jeg jobber i BEKK i Trondheim, som frontend utvikler. Hvorfor er jeg her i dag for å snakke om noe som høres veldig akademisk ut?
+          </aside>
+        </section>
 
-                <section>
-                    <h2>Takk for meg!</h2>
-                </section>
+        <section>
+          <h3>To tackle complexity</h3>
+          <p>That's my job</p>
+          <aside class="notes">
+            Frontends blir bare større og større og kompleksiteten øker og øker. I web-frontend-land har vi liten tradisjon for å håndtere og takle store mengder kompleksitet.
+          </aside>
+        </section>
 
-            </div>
+        <section>
+          <h3>We are taking lessons from the past</h3>
+          <p>But we are forgetful</p>
+          <aside class="notes">
+            Vi prøver å lære fra fortiden, men vi går ikke så veldig langt tilbake. Det kommer stadig vekk nye spinnoffs av MV* og diverse objekt orienterte måter som lover gull og grønne skoger for kompleksitet som er på vei ut av kontroll. Vi må lenger tilbake.
+          </aside>
+        </section>
 
-        </div>
+        <section>
+          <h2>Functional programming</h2>
+          <aside class="notes">
+            Functional programming har sine røtter i mattematikken og har noen triks som gjør det enklere å håndtere kompleksitet i kode. Mange av dere har sikkert hørt om functional programming fra før, men vi tar en kjapp gjennomgang av hvorfor functional programming er interessant i denne sammenhengen.
+          </aside>
+        </section>
 
-        <script src="./lib/js/head.min.js"></script>
-        <script src="./js/reveal.min.js"></script>
+        <section>
+          <h3>Programming with functions</h3>
+          <p>But wait, there's more!</p>
+          <aside class="notes">
+            Den enkleste definisjonen på funksjonell programmering er "Programming with functions", functions som byggeblokk og functions som returnerer nye functions som sement. Den er egentlig ganske dekkende. Men det er noen flere triks i baggen her, triks som er veldig nyttige for å takle kompleksitet på en måte som er behagelig for utviklere.
+          </aside>
+        </section>
 
-        <script>
+        <section>
+          <h3>Immutable data</h3>
+          <p>Nothing ever changes</p>
+          <aside class="notes">
+            Immutability betyr at med en gang en verdi blir instansiert vil den aldri endre seg. Dette høres egentlig mer ut som et hinder enn en fordel, tenker du kanskje? På den andre siden, ganske enkelt å resonere rundt en verdi du alltid vet vil være den samme.
+          </aside>
+        </section>
 
-            Reveal.initialize({
-                controls: true,
-                progress: true,
-                history: true,
-                center: true,
-                dependencies: [
-                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; }},
-                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
-                ]
-            });
+        <section>
+          <h3>Pure functions</h3>
+          <p>Functions that doesn't do anything</p>
+          <aside class="notes">
+            Pure functions er immutable datas søster. En pure function er en function som ikke har noen observerbare effekter utenfor seg selv og den vil alltid returnere samme resultat gitt samme input. Hvordan skal man lage noe fornuftig hvis man ikke kan påvirke noe med funksjoner? Samtidig, ganske ålreit å forholde seg til funksjoner som alltid gir samme resultat hvis du gir den identisk input.
+          </aside>
+        </section>
 
-        </script>
+        <section>
+          <h3>How does this apply to real programs?</h3>
+          <p>Abstractions</p>
+          <aside class="notes">
+            For å kunne nyttegjøre seg av de gode effektene av immutability og pure functions har man i funksjonell programmering gjort noen triks. Man kan abstrahere vekk state mutation, også kjent som monader, og på den måten kunne gjøre fornuftige ting med programmering. Dette var et veldig kjapt overblikk over functional programming, det er mer to it enn dette, så jeg anbefaler å ta en nærmere kikk.
+          </aside>
+        </section>
 
-    </body>
+        <section>
+          <h2>User interfaces</h2>
+          <aside class="notes">
+            Så, vi ønsker å ta med oss konseptene om immutable data og pure functions til user interfaces og web fordi det hjelper oss å håndtere kompleksitet. Men, user interfaces virker som en ganske dårlig fit for det vi ønsker å få til. 
+          </aside>
+        </section>
+
+        <section>
+          <h3>Attributes of user interfaces</h3>
+          <p>Global mutable state</p>
+          <aside class="notes">
+            User interfaces er en felles lekegrind for både systemet og brukeren hvor de står fritt til å forandre tilstanden til det når de føler for det. Som vi lærte i går så er det lett å gå i revefella med mutabel tilstand, spesielt når det sitter en bruker på andre siden.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Attributes of user interfaces</h3>
+          <p>Asynchronous actions</p>
+          <aside class="notes">
+            All interaksjon fra brukeren, interaksjon med baksystemer. GUI tråden og whateverelse. Eventloop etc. Async og funksjonell programmering er fint mulig, men i kombinasjon med shared mutable state blir dette fort til et kaos.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Attributes of user interfaces</h3>
+          <p>Temporally dependent actions</p>
+          <aside class="notes">
+            Når vi i tillegg legger til kravet om at handlinger har en streng avhengighet til tid, det vil si at rekkefølgen handlinger skjer har signifikans for utfallet av handlingene. Kombinerer vi dette med asynkronitet blir det vanskelig å unifisere det med en funksjonell tankegang.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Attributes of user interfaces</h3>
+          <p>Dependencies between data</p>
+          <aside class="notes">
+            I tillegg til de overnevnte egenskapene så har vi ofte avhengigheter mellom biter av mutable state, og dette bidrar ytterligere til å skape mer shared mutable state og øke kompleksiteten.
+          </aside>
+        </section>
+
+        <section>
+          <h3>What do we need to do in order to use functional programming principles?</h3>
+          <ul>
+            <li>Abstract state mutation</li>
+            <li>Declarative dependencies between pieces of state</li>
+            <li>Perserve temporal information</li>
+          </ul>
+          <aside class="notes">
+            Vi må først abstrahere vekk state mutation slik at vi kan få trygge abstraksjoner å jobbe på. Disse abstraksjonene må også ta vare på temporal information slik at vi kan bevare temporal dependencies. Så trenger vi en deklarativ, høynivå, måte å komponere eller sy sammen disse abstraksjonene.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Reactive programming</h2>
+          <aside class="notes">
+            Dette kan reactive programming hjelpe oss med å oppnå.
+          </aside>
+        </section>
+
+        <section>
+          <h3>A programming paradigme oriented around data flows and propagation of changes to state.</h3>
+          <aside class="notes">
+            Dette er den formelle definisjonen på reactive programming. Og dette høres jo akkurat ut som det vi trenger.
+          </aside>
+        </section>
+
+        <section>
+            <h3>Data flow programming</h3>
+            <p>Spreadsheets</p>
+            <aside class="notes">
+             Reactive programming omtales ofte som data flow programming. Den primære byggestenen i data flow programming, som functions er i functional programming, er datakanaler. Datakanaler representerer en bit med state og hvordan den endrer seg over tid. Det kanskje beste eksempelet på denne typen programmering er et spreadsheet.
+            </aside>
+        </section>
+
+        <section>
+          <div class="dataflow-example">
+            <input type="number" id="a" value="3" class="node-a"/>
+            <input type="number" id="b" value="2" class="node-b"/>
+            <input type="text" id="sum" value="0" disabled="" class="node-result"/>
+          </div>
+          <script>
+            (function () {
+              var _add = function (a, b) { return a + b; };
+              var _value = function (e) { return e.currentTarget.value; };
+              var getInputAsProperty = function (id) {
+                var $el = document.querySelector(id);
+                return Bacon.fromEventTarget($el, "change")
+                  .map(_value)
+                  .toProperty($el.value)
+                  .map(Number);
+              };
+
+              var $a = getInputAsProperty("#a");
+              var $b = getInputAsProperty("#b");
+
+              $a.combine($b, _add).onValue(function (v) {
+                document.querySelector("#sum").value = v;
+              });
+            })();
+          </script>
+          <aside class="notes">
+            I et spreadsheet så har du data-celler og formel-celler. Formel-cellene er avhengig av verdien i en data-celle og vil automatisk oppdatere seg hvis en av data-cellene endrer verdi.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Values and formulae</h3>
+          <p>How to think in data flow</p>
+          <aside class="notes">
+            Verdier, eller kilder, og formler er de primære abstraksjonene i reactive programming. Formler i denne sammenhengen vil være tilsvarende en higher order function i functional programming, altså en reactive datatype som er avhengig av en eller flere andre reactive datatypes.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Reactive datatypes</h3>
+          <p>The primary abstraction</p>
+          <aside class="notes">
+             Ved å kombinere reaktive datatyper kan vi danne oss en slags graf, hvor nodene i ytterpunktene i grafen får data satt og så kan vi propagere datene gjennom grafen og observere verdien på noder som betinger på de ytterste nodene.
+          </aside>
+        </section>
+
+        <section>
+          <h3>How does reactive programming solve the problem with user interfaces?</h3>
+        </section>
+
+        <section>
+          <h3>Abstract state mutation</h3>
+          <p>The reactive datatypes delegate all state mutation to the underlying execution model</p>
+          <aside class="notes">
+            Vi abstraherer vekk state mutation ved å la den underliggende mekanikken ta seg av det. Dette gir oss en datatype som alltid vil være oppdatert med sin seneste tilstand uten at vi som programmerere trenger å sjekke manuellt.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Declarative dependencies between pieces of state</h3>
+          <p>Higher order reactive datatypes</p>
+          <aside class="notes">
+            Vi kan lage higher order reactive datatypes, datatypes som har avhengigheter til andre datatypes.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Perserve temporal information</h3>
+          <aside class="notes">
+            Denne er kanskje den minst åpenbare av de tre problemene og den krever at det taes noen hensyn i implementasjonen av de reaktive datatypene.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Perserve temporal information</h3>
+          <p>Save the time information connected to a change in state</p>
+          <aside class="notes">
+            Ved å få den underliggende implementasjonen ta vare på tidspunkter i forbindelse med tilstandsendringer kan vi sørge for å bevare de temporale avhengighetene.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Continous and discrete</h3>
+          <p><code>f(t) => v</code> og <code>[(v, t)]</code></p>
+          <aside class="notes">
+            Når vi tar vare på tidsinformasjonen så kan vi representere to ulike tidsfenomener. Kontinuerlig, som vil si at ved en hver tid t så har vi en verdi. Og diskret, som vil si at vi har en liste av tid-verdi-par.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Functional &amp; Reactive</h2>
+          <aside class="notes">
+            Så, hvordan blir det når vi slår sammen de to programmerings paradigmene functional og reactive?
+          </aside>
+        </section>
+
+        <section>
+            <h3>EventStream &amp; Behavior</h3>
+            <p>Primary abstractions for discrete and continous values</p>
+            <aside class="notes">
+              De to primære abstraksjonene vi jobber med blir EventStreams, for diskrete tidsfenomener, og Behaviors, for kontinuerlige tidsfenomener. Hva er forskjellen mellom de to? Egentlig bare semantikk, du kan gjøre en EventStream til en Behavior ved å la den huske sin siste verdi. Det er ikke alle FRP implementasjoner som behandler dem som to ulike abstraksjoner heller.
+            </aside>
+        </section>
+
+        <section>
+          <h3>Combinators and functors</h3>
+          <p>Compositional vocabulary from functional programming</p>
+          <aside class="notes">
+            Måten vi komponerer de reaktive datatypene tar vi fra funksjonell programmering. Vi bruker våre gode venner map, reduce og filter og kan på denne måten uttrykke forhold mellom datatyper og sette opp avhengighetsgrafen vår.
+          </aside>
+        </section>
+
+        <section>
+            <h3>We are still mutating the state at the borders of the graph.</h3>
+            <aside class="notes">
+              Dette er litt tilbake til det jeg sa helt i starten om functional programming. Vi kan aldri bli helt fri fra mutable state, et sted må vi gjøre det. Men vi kan begrense oss til et minimum.
+            </aside>
+        </section>
+
+        <section>
+          <h3>What do we achieve?</h3>
+          <p>Functional reasoning despite unfit domain</p>
+          <aside class="notes">
+            Det vi oppnår er å kunne benytte oss av immutability og pure functions som gjør det enklere å resonnere rundt koden din innenfor dependency grafen vi oppretter ved å komponere de reaktive datatypene funksjonellt.
+          </aside>
+        </section>
+
+        <section>
+            <h2>FRP in practice: Implementations</h2>
+            <aside class="notes">
+              Det har kanskje vært i overkant teoretisk så langt, så la oss se litt på det praktiske.
+            </aside>
+        </section>
+
+        <section>
+          <h3>Implementations of FRP</h3>
+          <p>Haskell and friends</p>
+          <aside class="notes">
+            Det kommer kanskje ikke som en overaskelse at de første implementasjonene av functional reactive programming ble gjort i Haskell. Det som kanskje overasker litt er at det var i 1997. FRP er også implementert i andre funksjonelle språk som feks Clojure.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Implementations of FRP</h3>
+          <p>Web and JavaScript</p>
+          <ul>
+            <li>RxJS</li>
+            <li>Elm</li>
+            <li>Flapjax</li>
+            <li>Bacon.js</li>
+          </ul>
+          <aside class="notes">
+            Selv om Haskell er veldig interessant i seg selv så er det ikke det språket som vi bruker mest i hverdagen. Som web-utvikler er jeg interessert i noe som fungerer på webben. RxJS er en port av Reactive Extensions fra Microsoft og benytter seg av en LINQ-like syntax for komposisjon. Elm er et eget språk som kompilerer ned til web. Flapjax er en av de eldste FRP implementasjonene i JS, men er ikke like mye brukt. Bacon.js er et nyere, men mye mer aktivt brukt FRP lib og det vi kommer til å ta utgangspunkt i for resten av foredraget.
+          </aside>
+        </section>
+
+        <section>
+          <h2>FRP in practice: Bacon.js</h2>
+          <aside class="notes">
+            Bacon.js er implementert i JavaScript og er ganske unobtrusive å ta i bruk. Bibloteket holder seg tro til functional reactive programming tanken om en dependency graf hvor du på innsiden holder deg til immutable data og pure functions.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Sources</h3>
+          <ul>
+            <li><code>fromEventTarget</code></li>
+            <li><code>fromPromise</code></li>
+            <li><code>constant</code></li>
+            <li>and more</li>
+          </ul>
+          <aside class="notes">
+            Bacon.js har en del metoder for å wrappe data eller kilder til data i en reaktiv datatype som kan benyttes i FRP grafen. fromEventTarget kan wrappe noe som følger eventEmitter-interfacen. fromPromise kan wrappe et promise. constant lager en behavior, en kontinuerlig verdi, som allitd har den samme verdien. Vi kan også konvertere mellom EventStreams og Behaviors, som i Bacon.js kalles properties etter behov.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Sinks</h3>
+          <p><code>onValue</code></p>
+          <aside class="notes">
+            Vi trenger også en måte å få data ut av dependency grafen vår. Ved å attache en onValue funksjon til en datakilde kan vi gjøre noe med den wrapped verdien. Denne fungerer både på properties og eventstreams.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Composition</h3>
+          <ul>
+            <li><code>map</code></li>
+            <li><code>filter</code></li>
+            <li><code>reduce</code></li>
+            <li><code>merge</code></li>
+            <li>and many more</li>
+          </ul>
+          <aside class="notes">
+            Vi kan komponere disse datatypene og lage mer avanserte strukturer og oppførsel. Bacon.js har veldir mange fler kombinasjonsmetoder enn dette, men disse er de mest brukte.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Low level</h3>
+          <p>Only the important bits</p>
+          <aside class="notes">
+            Bacon.js gir oss bare de byggestenene vi må ha og oppfordrer dermed, i god functional programming ånd, programmereren til å bygge de abstraksjonene som eventuelt mangler av de bitene Bacon.js tilbyr.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Example: One-directional binding</h2>
+          <aside class="notes">
+            Det er fortsatt litt abstrakt, så la oss ta et par eksempler for å runde av foredraget. Det første eksempelet er en veldig enkel one-directional binding.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Goal: Text in inputfield is replicated in label</h3>
+        </section>
+
+        <section>
+          <div class="code">
+            <pre><code>var input = Bacon.fromEventTarget(document.querySelector("#text", 'keyup')</code></pre>
+          </div>
+          <aside class="notes">
+            Vi starter med å wrappe verdien i tekstfeltet i en reaktiv datatype. Vi angir også hvilken event vi ønsker at skal propagere nye verdier.
+          </aside>
+        </section>
+
+        <section>
+          <div class="code">
+            <pre><code>var value = input.map(el => el.value)</code></pre>
+          </div>
+          <aside class="notes">
+            Vi wrapped et DOM element, men det vi egentlig er interessert i er verdien til input feltet, så da kan vi lage oss en ny node i grafen som representerer den verdien ved å bruke map.
+          </aside>
+        </section>
+
+        <section>
+          <div class="code">
+            <pre><code>value.onValue(v => document.querySelector('label').innerHTML = v);</code></pre>
+          </div>
+          <aside class="notes">
+            Så kan vi unwrappe verdien igjen ved å benytte onValue og sette den verdien på labelen. Dette eksempelet er veldig simpelt og det virker kanskje litt overkill å benytte Bacon.js til dette, men det illustrerer hvordan sources og sinks funker på en veldig fin måte.
+          </aside>
+        </section>
+
+        <section>
+          <h2>Demo</h2>
+          <input type="text" id="text">
+          <label for="text"></label>
+          <script>
+            (function() {
+              var propertyFromInput = function(id) {
+                var field = document.querySelector(id);
+                var value = function() {
+                  return field.value;
+                };
+                return Bacon.fromEventTarget(field, 'keyup')
+                  .map(value)
+                  .toProperty(value());
+              };
+              var text = propertyFromInput("#text");
+              text.onValue(function (v) {
+                document.querySelector('label').innerHTML = v;
+              });
+            })();
+          </script>
+        </section>
+<!--
+        <section>
+          <h2>Example: Form validation</h2>
+          <aside class="notes">
+            Dette neste eksempelet er litt mer intrikat. Vi skal validere et form.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Goal: Validate a form with 3 inputs following 3 different rules</h3>
+        </section>
+
+        <section>
+          <h2>Demo</h2>
+          <div>
+            <form>
+              <div><label for="name">Name</label></div>
+              <input id="name" type="text"><span style="color: red">!</span>
+              <div><label for="rank">Rank</label></div>
+              <input id="rank" type="text"><span style="color: red">!</span>
+              <div><label for="serialnumber">Serial Number</label></div>
+              <input id="serialnumber" type="text"><span style="color: red">!</span>
+              <div>
+                <button id="add" style="font-size: larger; margin-top: 1em">Add</button>
+              </div>
+            </form>
+          </div>
+          <script>
+            (function() {
+              var propertyFromInput = function(id) {
+                var field = document.querySelector(id);
+                var value = function() {
+                  return field.value;
+                };
+                return Bacon.fromEventTarget(field, 'keyup')
+                  .map(value)
+                  .toProperty(value());
+              };
+
+              var showError = function (icon) {
+                return function (v) {
+                  document.querySelector(icon).style.visibility = v ? 'hidden' : 'visible';
+                };
+              };
+
+              var name = propertyFromInput("#name");
+              var rank = propertyFromInput("#rank");
+              var serialnumber = propertyFromInput("#serialnumber");
+
+              var validName = name.map(Boolean);
+              validName.onValue(showError("#name + span"));
+
+              var validRank = rank.map(function(r) {
+                var validRanks =  ['Captain', 'Corporal', 'General', 'Private'];
+                return validRanks.indexOf(r) != -1;
+              });
+              validRank.onValue(showError("#rank + span"));
+
+              var validSerialnumber = serialnumber.map(function(s) {
+                return /^\d{5}-\w{3}$/.test(s);
+              });
+              validSerialnumber.onValue(showError("#serialnumber + span"));
+
+              validName.and(validRank).and(validSerialnumber)
+                .onValue(function (v) {
+                  document.querySelector('#add').disabled = !v;
+                });
+
+              var save = Bacon.fromEventTarget(document.querySelector("#add"), 'click').doAction('.preventDefault');
+            }());
+          </script>
+        </section>
+-->
+        <section>
+            <h3>Example: WebSockets and multiple clients.</h3>
+        </section>
+        <section>
+            <h3>We are making a simple voting system based on WebSockets.</h3>
+        </section>
+        <section class="vote-example">
+            <h3>What we need to do</h3>
+            <ul>
+                <li class="fragment">Connect and receive data from a WebSocket.</li>
+                <li class="fragment">Count the votes.</li>
+                <li class="fragment">Calculate the percentage each alternative gets.</li>
+                <li class="fragment">Reflect the percentage in the interface.</li>
+            </ul>
+        </section>
+        <section class="vote-example">
+            <pre><code data-trim>var socketStream = Bacon.fromEventTarget(socket, "vote");</code></pre>
+            <aside class="notes">
+                <p>Her er <code>socket.io</code> brukt for å håndtere WebSockets, og ettersom det er en implementasjon av EventEmitter, kan vi bruke det i fromEventTarget.</p>
+            </aside>
+        </section>
+        <section class="vote-example">
+          <div class="code">
+            <pre><code data-trim>var totalVoteProperty = function (id) {</code></pre>
+            <pre class="fragment"><code>  return socketStream</code></pre>
+            <pre class="fragment"><code>    .filter(isId(id))</code></pre>
+            <pre class="fragment"><code>    .map(1)</code></pre>
+            <pre class="fragment"><code>    .scan(0, add);</code></pre>
+            <pre><code>};</code></pre>
+          </div>
+          <aside class="notes">
+              <p>Vi skal finne totale antall stemmer et alternativ får.</p>
+              <p>Med å kjøre filter med predikatet <code>isId</code>, får vi ut en hendelse som kun gjelder for alternativet med gitt ID.</p>
+              <p>Vi gjør om hendelsen til å kun ha verdier som er 1. Det vil si at hver gang hendelsen inntreffer, vil vi få verdien 1.</p>
+              <p>Scan som er nesten som reduce, bare at den gir melding hver gang den oppdateres. Reduce ville kun ha gitt en verdi når det ikke kommer flere verdier (WebSocketen hadde avsluttet). Når vi bruker scan her, og gir en initiell verdi på 0 og _add som transformator, vil resultatet være den totale summen.</p>
+              <p>Vi sitter igjen med en adferd som inneholder summen av stemmer for et alternativ med en gitt ID.</p>
+          </aside>
+        </section>
+
+        <section class="vote-example">
+          <div class="code">
+            <pre><code data-trim>var percentage = function (numVotes, total) {</code></pre>
+            <pre><code class="fragment">  return numVotes</code></pre>
+            <pre><code class="fragment">    .combine(total, _toPercentage);</code></pre>
+            <pre><code data-trim>};</code></pre>
+          </div>
+          <aside class="notes">
+              <p>Ettersom vi skal vise prosentvis fordeling av alle alternativene, må ha en måte å regne det ut på.</p>
+              <p>Vi starter med antallet stemmer til et alternativ.</p>
+              <p><code>Combine</code> vil kombinere de to siste verdiene på begge kildene ved hjelp av en første ordens funksjon.</p>
+              <p>Om vi kombinerer antall stemmer på et alternativ med totale mengden stemmer og kjører prosentregning på den, har vi prosenten på antall stemmer til et gitt alternativ.</p>Hei folkens, husk valget i dag om 2 timer! Alle med aktivt oblat kan og bør stemme.
+
+              <p>Det vi sitter igjen med etter dette er en adferd med prosenten til et alterantiv.</p>
+          </aside>
+        </section>
+
+        <section class="vote-example">
+            <pre><code data-trim>var sum = socketStream.map(1).scan(0, _add);</code></pre>
+            <aside class="notes">
+                <p>For å finne den totale mengden stemmer, kan vi gjøre det på samme måten som vi har gjort på individuelle alternativer, bare uten filtreringen.</p>
+            </aside>
+        </section>
+
+        <section class="vote-example">
+          <div class="code">
+            <pre><code data-trim>["alt1", "alt2", "alt3"].forEach(function (id) {</code></pre>
+            <pre><code class="fragment">  return percentage(totalVoteProperty(id), sum)</code></pre>
+            <pre><code class="fragment">  .onValue(v => document.querySelector('#'+id).value = v);</code></pre>
+            <pre><code data-trim>});</code></pre>
+          </div>
+          <aside class="notes">
+              <p>For å samle det hele, begynner vi med å iterere vi over ID-ene til de tre alternativene.</p>
+              <p>Vi ønsker å finne prosenten av den totale stemme-antallet for alternativ "ID" ut i fra den totale summen.</p>
+              <p>Vi vil sette denne prosenten til på DOM-elementet gitt av ID.</p>
+              <p>Det er det som trengs. Og vi har nå et fiks ferdig sanntids polling-system!</p>
+          </aside>
+        </section>
+
+        <section>
+          <h3>How do you spell banana in swedish?</h3>
+          <progress max="100" id="alt1" value="0" data-skill="Guleböj!" class="progress-red"></progress>
+          <progress max="100" id="alt2" value="0" data-skill="Banan." class="progress-yellow"></progress>
+          <progress max="100" id="alt3" value="0" data-skill="Jag är en rondell!" class="progress-green"></progress>
+
+          <h4>Vote at: <a href="http://frp.herokuapp.com">http://frp.herokuapp.com</a></h4>
+
+          <script>
+            (function () {
+              var socket = new io.connect("ws://frp.herokuapp.com:80/");
+              var socketStream = Bacon.fromEventTarget(socket, "vote");
+              var _isId = function (id) {
+                return function (data) {
+                  return data === id;
+                };
+              };
+              var _add = function (a, b) {
+                return a + b;
+              };
+              var _toPercentage = function (value, sum) {
+                return sum === 0 ? 0 : (value / sum) * 100;
+              };
+
+              var totalVoteProperty = function (id) {
+                return socketStream.filter(_isId(id)).map(1).scan(0, _add);
+              };
+
+              var percentage = function (stream, total) {
+                return stream.combine(total, _toPercentage);
+              };
+
+              var sum = socketStream.map(1).scan(0, _add);
+
+              ["alt1", "alt2", "alt3"].forEach(function (id) {
+                percentage(totalVoteProperty(id), sum)
+                  .onValue(function (v) {
+                    document.querySelector('#'+id).value = v;
+                  });
+              });
+            }());
+          </script>
+        </section>
+
+        <section>
+          <h2>Wrap up</h2>
+        </section>
+
+        <section>
+          <h3>Managing complexity is hard</h3>
+          <p>But functional programming makes it easier</p>
+          <aside class="notes">
+            Det er vanskelig å håndtere kompleksitet, men functional programming har et par triks til oss for å gjøre det lettere i form av immutable data og pure functions.
+          </aside>
+        </section>
+
+        <section>
+          <h3>User interfaces are tricky</h3>
+          <p>But reactive programming make them manageable</p>
+          <aside class="notes">
+            User interfaces har en del karakteristikker som gjør dem vanskeligere å ha med å gjøre i en funksjonell setting. Ved å benytte oss av det reactive programming gir oss i form av state management kan vi gjøre dem enklere å håndtere.
+          </aside>
+        </section>
+
+        <section>
+          <h3>Combinine functional and reactive programming for a plesant way of managing complexity in user interfaces</h3>
+          <aside class="notes">
+            Moralen i historien er;
+          </aside>
+        </section>
+
+        <section>
+            <h3>Questions, feedback and other things</h3>
+            <h3><a href="http://www.twitter.com/mollerse">@mollerse</a></h3>
+            <h3><a href="mailto:stian.veum.mollersen@bekk.no">stian.veum.mollersen@bekk.no</a></h3>
+        </section>
+
+        <section>
+            <h2>Thank you for having me!</h2>
+        </section>
+
+      </div>
+
+    </div>
+
+    <script src="./lib/js/head.min.js"></script>
+    <script src="./js/reveal.min.js"></script>
+
+    <script>
+
+      Reveal.initialize({
+        controls: false,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'none',
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; }},
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+        ]
+      });
+
+    </script>
+  </body>
 </html>

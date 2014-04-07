@@ -1,0 +1,61 @@
+
+
+.slides .dataflow-example {
+    background: url("../assets/dataflow_add.svg") left top no-repeat;
+    position: relative;
+    width: 640px;
+    height: 365px;
+
+    margin: 0 auto;
+}
+
+.node-a,
+.node-b,
+.node-result {
+    border: 0;
+    background: none;
+    color: #fff;
+    position: absolute;
+
+    font-size: 2em;
+    width: 100px;
+    outline: 0;
+
+    text-align: center;
+}
+
+.node-a {
+    top: 30px;
+    left: 25px;
+}
+
+.node-b {
+    bottom: 36px;
+    left: 25px;
+}
+
+.node-result {
+    top: calc(50% - 40px);
+    right: 15px;
+}
+
+
+.vote-example h3,
+.form-example h3 {
+    margin-bottom: 50px;
+}
+
+
+.vote-example pre code {
+    font-size: 1.5em;
+    line-height: 1em;
+}
+
+
+div.code {
+    background-color: #23241f;
+}
+
+div.code pre {
+    box-shadow: none;
+}
